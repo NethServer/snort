@@ -1,0 +1,45 @@
+diff -Naur snort-2.9.5.5.ori/rpm/snortd snort-2.9.5.5/rpm/snortd
+--- snort-2.9.5.5.ori/rpm/snortd	2013-11-08 10:11:21.601000000 +0100
++++ snort-2.9.5.5/rpm/snortd	2013-11-08 10:13:15.291000000 +0100
+@@ -45,6 +45,8 @@
+ 
+ if [ "$INTERFACE"X = "X" ]; then
+    INTERFACE="-i eth0"
++elif [ "$INTERFACE"X = "NFQX" ]; then
++   INTERFACE="-Q" 
+ else 
+    INTERFACE="-i $INTERFACE"
+ fi
+@@ -98,7 +100,9 @@
+   start)
+         echo -n "Starting snort: "
+         cd $LOGDIR
+-        if [ "$INTERFACE" = "-i ALL" ]; then
++        if [ "$INTERFACE" = "-Q" ]; then
++                daemon /usr/sbin/snort $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -u $USER -g $GROUP $CONF $PASS_FIRST $BPFFILE $BPF $INTERFACE
++        elif [ "$INTERFACE" = "-i ALL" ]; then
+            for i in `cat /proc/net/dev|grep eth|awk -F ":" '{ print $1; }'`
+            do
+                 mkdir -p "$LOGDIR/$i"
+diff -Naur snort-2.9.5.5.ori/rpm/snort.sysconfig snort-2.9.5.5/rpm/snort.sysconfig
+--- snort-2.9.5.5.ori/rpm/snort.sysconfig	2013-11-08 10:11:21.601000000 +0100
++++ snort-2.9.5.5/rpm/snort.sysconfig	2013-11-08 10:14:54.395000000 +0100
+@@ -12,7 +12,7 @@
+ # What interface should snort listen on?  [Pick only 1 of the next 3!]
+ # This is -i {interface} on the command line
+ # This is the snort.conf config interface: {interface} directive
+-INTERFACE=eth0
++INTERFACE=NFQ
+ #
+ # The following two options are not directly supported on the command line
+ # or in the conf file and assume the same Snort configuration for all
+@@ -23,6 +23,9 @@
+ #
+ # To listen only on given interfaces use this:
+ #INTERFACE="eth1 eth2 eth3 eth4 eth5"
++#
++# To use NFQ mode
++#INTERFACE=NFQ
+ 
+ 
+ # Where is Snort's configuration file?
