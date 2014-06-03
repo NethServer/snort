@@ -36,7 +36,7 @@
 
 
 Name: %{realname}
-Version: 2.9.5.5
+Version: 2.9.6.1
 Epoch: 1
 Release: %{release}
 Summary: An open source Network Intrusion Detection System (NIDS)
@@ -49,9 +49,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Packager: Official Snort.org %{for_distro}
 Vendor: %{vendor}
 BuildRequires: autoconf, automake, pcre-devel, libpcap-devel
-#BuildRequires: libnetfilter_queue-devel, libnfnetlink-devel, daq, libdnet-devel, zlib-devel, flex, bison
 BuildRequires: libnetfilter_queue-devel, libnfnetlink-devel, libnetfilter_queue, libnfnetlink, daq, libdnet-devel, zlib-devel, flex, bison
 Patch1: nethesis-init.patch 
+Patch2: nethesis-logrotate.patch
 #Conflicts: %{conflicts}
 
 %description
@@ -85,6 +85,7 @@ information on snort features and configuration.
 %setup -q -n %{realname}-%{version}
 
 %patch1 -p1
+%patch2 -p1
 
 # When building from a Snort.org CVS snapshot tarball, you have to run
 # autojunk before you can build.
@@ -281,6 +282,11 @@ fi
 #	Vlatko Kosturjak <kost@linux.hr>
 
 %changelog
+* Fri May 30 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> 2.9.6.1
+- Upate to upstream 2.9.6.1
+- Add NFQ and quiet options to init.d script
+- Use copytruncate on logrotate 
+
 * Wed May 09 2012 Todd Wease <twease@sourcefire.com> 2.9.3
 - Removed --enable-decoder-preprocessor-rules since this is now the default
 -	behavior and not configurable.

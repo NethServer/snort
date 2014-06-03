@@ -1,6 +1,6 @@
-diff -Naur snort-2.9.5.5.ori/rpm/snortd snort-2.9.5.5/rpm/snortd
---- snort-2.9.5.5.ori/rpm/snortd	2013-11-08 10:11:21.601000000 +0100
-+++ snort-2.9.5.5/rpm/snortd	2013-11-08 10:13:15.291000000 +0100
+diff -Naur snort-2.9.6.1.ori/rpm/snortd snort-2.9.6.1/rpm/snortd
+--- snort-2.9.6.1.ori/rpm/snortd	2014-05-30 10:37:17.262725041 +0200
++++ snort-2.9.6.1/rpm/snortd	2014-05-30 10:41:30.979825167 +0200
 @@ -45,6 +45,8 @@
  
  if [ "$INTERFACE"X = "X" ]; then
@@ -10,20 +10,35 @@ diff -Naur snort-2.9.5.5.ori/rpm/snortd snort-2.9.5.5/rpm/snortd
  else 
     INTERFACE="-i $INTERFACE"
  fi
-@@ -98,7 +100,9 @@
+@@ -98,12 +100,14 @@
    start)
          echo -n "Starting snort: "
          cd $LOGDIR
 -        if [ "$INTERFACE" = "-i ALL" ]; then
 +        if [ "$INTERFACE" = "-Q" ]; then
-+                daemon /usr/sbin/snort $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -u $USER -g $GROUP $CONF $PASS_FIRST $BPFFILE $BPF $INTERFACE
++                daemon /usr/sbin/snort $EXTRA_OPTIONS $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -u $USER -g $GROUP $CONF $PASS_FIRST $BPFFILE $BPF $INTERFACE
 +        elif [ "$INTERFACE" = "-i ALL" ]; then
             for i in `cat /proc/net/dev|grep eth|awk -F ":" '{ print $1; }'`
             do
                  mkdir -p "$LOGDIR/$i"
-diff -Naur snort-2.9.5.5.ori/rpm/snort.sysconfig snort-2.9.5.5/rpm/snort.sysconfig
---- snort-2.9.5.5.ori/rpm/snort.sysconfig	2013-11-08 10:11:21.601000000 +0100
-+++ snort-2.9.5.5/rpm/snort.sysconfig	2013-11-08 10:14:54.395000000 +0100
+                 chown -R $USER:$GROUP $LOGDIR
+-                daemon /usr/sbin/snort $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -i $i -u $USER -g $GROUP $CONF -l $LOGDIR/$i $PASS_FIRST $BPFFILE $BPF
++                daemon /usr/sbin/snort $EXTRA_OPTIONS $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -i $i -u $USER -g $GROUP $CONF -l $LOGDIR/$i $PASS_FIRST $BPFFILE $BPF
+            done
+         else
+            # check if more than one interface is given
+@@ -112,7 +116,7 @@
+                 do
+                   mkdir -p "$LOGDIR/$i"
+                   chown -R $USER:$GROUP $LOGDIR
+-                  daemon /usr/sbin/snort $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -i $i -u $USER -g $GROUP $CONF -l $LOGDIR/$i $PASS_FIRST $BPFFILE $BPF
++                  daemon /usr/sbin/snort $EXTRA_OPTIONS $ALERTMODE $BINARY_LOG $NO_PACKET_LOG $DUMP_APP -D $PRINT_INTERFACE -i $i -u $USER -g $GROUP $CONF -l $LOGDIR/$i $PASS_FIRST $BPFFILE $BPF
+              done
+            else
+               # Run with a single interface (default)
+diff -Naur snort-2.9.6.1.ori/rpm/snort.sysconfig snort-2.9.6.1/rpm/snort.sysconfig
+--- snort-2.9.6.1.ori/rpm/snort.sysconfig	2014-05-30 10:37:17.262725041 +0200
++++ snort-2.9.6.1/rpm/snort.sysconfig	2014-05-30 10:40:02.452177319 +0200
 @@ -12,7 +12,7 @@
  # What interface should snort listen on?  [Pick only 1 of the next 3!]
  # This is -i {interface} on the command line
@@ -43,3 +58,25 @@ diff -Naur snort-2.9.5.5.ori/rpm/snort.sysconfig snort-2.9.5.5/rpm/snort.sysconf
  
  
  # Where is Snort's configuration file?
+@@ -78,13 +81,13 @@
+ # recommended as it provides very useful information for investigations.
+ # -b
+ # output log_tcpdump: {log name}
+-BINARY_LOG=1
++BINARY_LOG=0
+ 
+ # Should Snort turn off packet logging?  The program still generates
+ # alerts normally.
+ # -N
+ # config nolog
+-NO_PACKET_LOG=0
++NO_PACKET_LOG=1
+ 
+ # Print out the receiving interface name in alerts.
+ # -I
+@@ -108,3 +111,5 @@
+ # config bpf_file: /path/to/bpf_file
+ #BPFFILE=/etc/snort/bpf_file
+ 
++# Enable quiet mode
++EXTRA_OPTIONS='-q'
