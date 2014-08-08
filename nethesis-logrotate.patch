@@ -1,0 +1,21 @@
+diff -Naur snort-2.9.6.1.ori/rpm/snort.logrotate snort-2.9.6.1/rpm/snort.logrotate
+--- snort-2.9.6.1.ori/rpm/snort.logrotate	2014-05-30 10:37:17.262725041 +0200
++++ snort-2.9.6.1/rpm/snort.logrotate	2014-05-30 10:46:51.392912922 +0200
+@@ -1,14 +1,12 @@
+ # /etc/logrotate.d/snort
+ # $Id$
+ 
+-/var/log/snort/alert /var/log/snort/*log /var/log/snort/*/alert /var/log/snort/*/*log  {
++/var/log/snort/alert {
++    copytruncate
+     daily
+-    rotate 7
++    rotate 180
+     missingok
+     compress
+     sharedscripts
+-    postrotate
+-	/etc/init.d/snortd restart 1>/dev/null || true
+-    endscript
+ }
+ 
