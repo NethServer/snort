@@ -24,7 +24,7 @@
 
 %define vendor Snort.org
 %define for_distro RPMs
-%define release 2
+%define release 1
 %define realname snort
 
 # Look for a directory to see if we're building under cAos 
@@ -55,9 +55,9 @@ Name: %{realname}
 Summary: An open source Network Intrusion Detection System (NIDS)
 Conflicts: %{realname}-openappid
 %endif
-Version: 2.9.7.2
+Version: 2.9.7.3
 Epoch: 1
-Release: %{release}
+Release: %{release}%{?dist}
 Group: Applications/Internet
 License: GPL
 Url: http://www.snort.org/
