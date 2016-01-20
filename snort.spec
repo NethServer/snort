@@ -19,7 +19,7 @@
 
 # Handle the options noted above.
 # Default of no openAppId, but --with openappid will enable it
-%define openappid 0
+%define openappid 1
 %{?_with_openappid:%define openappid 1}
 
 %define vendor Snort.org
@@ -46,28 +46,24 @@
   %define EnableOpenAppId --enable-open-appid
 %endif
 
-%if %{openappid}
-Name: %{realname}-openappid
-Summary: An open source Network Intrusion Detection System (NIDS) with open AppId support
-Conflicts: %{realname}
-%else
 Name: %{realname}
-Summary: An open source Network Intrusion Detection System (NIDS)
-Conflicts: %{realname}-openappid
-%endif
-Version: 2.9.7.3
+Version: 2.9.8.0
+Summary: An open source Network Intrusion Detection System (NIDS) with open AppId support
 Epoch: 1
 Release: %{release}%{?dist}
 Group: Applications/Internet
 License: GPL
 Url: http://www.snort.org/
-Source0: http://www.snort.org/downloads/snort/%{realname}-%{version}.tar.gz
+Source0: https://www.snort.org/downloads/snort/%{realname}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Packager: Official Snort.org %{for_distro}
 Vendor: %{vendor}
 BuildRequires: autoconf, automake, pcre-devel, libpcap-devel
 BuildRequires: libnetfilter_queue-devel, libnfnetlink-devel, libnetfilter_queue, libnfnetlink, daq, libdnet-devel, zlib-devel, flex, bison
+%if %{openappid}
+BuildRequires: luajit-devel openssl-devel
+%endif
 Patch1: nethesis-init.patch 
 Patch2: nethesis-logrotate.patch
 
@@ -195,6 +191,9 @@ InstallSnort() {
    fi
    if [ "$1" = "openappid" ]; then
 	%__install -p -m 0755 "$1"/tools/u2openappid/u2openappid $RPM_BUILD_ROOT%{_bindir}/u2openappid
+
+        # This isn't built, it has to be copied from the source tree
+	%__install -p -m 0755 tools/appid_detector_builder.sh $RPM_BUILD_ROOT%{_bindir}/appid_detector_builder.sh
    fi
 }
 
@@ -237,7 +236,7 @@ fi
 # Make a symlink if there is no link for snort-plain
 %if %{openappid}
   if [ -L %{_sbindir}/snort ] || [ ! -e %{_sbindir}/snort ] ; then \
-    %__rm -f %{_sbindir}/snort; %__ln_s %{_sbindir}/%{name} %{_sbindir}/snort; fi
+    %__rm -f %{_sbindir}/snort; %__ln_s %{_sbindir}/%{name}-openappid %{_sbindir}/snort; fi
 %else
   if [ -L %{_sbindir}/snort ] || [ ! -e %{_sbindir}/snort ] ; then \
     %__rm -f %{_sbindir}/snort; %__ln_s %{_sbindir}/%{name}-plain %{_sbindir}/snort; fi
@@ -278,8 +277,9 @@ fi
 %files
 %defattr(-,root,root)
 %if %{openappid}
-%attr(0755,root,root) %{_sbindir}/%{name}
+%attr(0755,root,root) %{_sbindir}/%{name}-openappid
 %attr(0755,root,root) %{_bindir}/u2openappid
+%attr(0755,root,root) %{_bindir}/appid_detector_builder.sh
 %else
 %attr(0755,root,root) %{_sbindir}/%{name}-plain
 %endif
@@ -323,6 +323,9 @@ fi
 #	Vlatko Kosturjak <kost@linux.hr>
 
 %changelog
+* Wed Jan 20 2016 Filippo Carletti <filippo.carletti@nethesis.it> - 1:2.9.8.0-1
+- Update to upstream 2.9.8.0 with openappid
+
 * Mon May 11 2015 Filippo Carletti <filippo.carletti@nethesis.it> - 1:2.9.6.2-2
 - Add -r to useradd and groupadd to create a system user in %pre
 
